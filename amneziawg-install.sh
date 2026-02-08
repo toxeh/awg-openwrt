@@ -156,7 +156,7 @@ configure_amneziawg_interface() {
 
     while true; do
         read -r -p "Enter internal IP address with subnet, example 192.168.100.5/24 (from [Interface]):"$'\n' AWG_IP
-        if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
+        if echo "$AWG_IP" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
             break
         else
             echo "This IP is not valid. Please repeat"
@@ -195,30 +195,30 @@ configure_amneziawg_interface() {
     fi
     
     uci set network.${INTERFACE_NAME}=interface
-    uci set network.${INTERFACE_NAME}.proto=$PROTO
-    uci set network.${INTERFACE_NAME}.private_key=$AWG_PRIVATE_KEY_INT
+    uci set network.${INTERFACE_NAME}.proto="$PROTO"
+    uci set network.${INTERFACE_NAME}.private_key="$AWG_PRIVATE_KEY_INT"
     uci set network.${INTERFACE_NAME}.listen_port='51821'
-    uci set network.${INTERFACE_NAME}.addresses=$AWG_IP
+    uci set network.${INTERFACE_NAME}.addresses="$AWG_IP"
 
-    uci set network.${INTERFACE_NAME}.awg_jc=$AWG_JC
-    uci set network.${INTERFACE_NAME}.awg_jmin=$AWG_JMIN
-    uci set network.${INTERFACE_NAME}.awg_jmax=$AWG_JMAX
-    uci set network.${INTERFACE_NAME}.awg_s1=$AWG_S1
-    uci set network.${INTERFACE_NAME}.awg_s2=$AWG_S2
-    uci set network.${INTERFACE_NAME}.awg_h1=$AWG_H1
-    uci set network.${INTERFACE_NAME}.awg_h2=$AWG_H2
-    uci set network.${INTERFACE_NAME}.awg_h3=$AWG_H3
-    uci set network.${INTERFACE_NAME}.awg_h4=$AWG_H4
+    uci set network.${INTERFACE_NAME}.awg_jc="$AWG_JC"
+    uci set network.${INTERFACE_NAME}.awg_jmin="$AWG_JMIN"
+    uci set network.${INTERFACE_NAME}.awg_jmax="$AWG_JMAX"
+    uci set network.${INTERFACE_NAME}.awg_s1="$AWG_S1"
+    uci set network.${INTERFACE_NAME}.awg_s2="$AWG_S2"
+    uci set network.${INTERFACE_NAME}.awg_h1="$AWG_H1"
+    uci set network.${INTERFACE_NAME}.awg_h2="$AWG_H2"
+    uci set network.${INTERFACE_NAME}.awg_h3="$AWG_H3"
+    uci set network.${INTERFACE_NAME}.awg_h4="$AWG_H4"
 
     # Устанавливаем новые параметры для AWG 2.0 (только если они заданы)
     if [ "$AWG_VERSION" = "2.0" ]; then
-        [ -n "$AWG_S3" ] && uci set network.${INTERFACE_NAME}.awg_s3=$AWG_S3
-        [ -n "$AWG_S4" ] && uci set network.${INTERFACE_NAME}.awg_s4=$AWG_S4
-        [ -n "$AWG_I1" ] && uci set network.${INTERFACE_NAME}.awg_i1=$AWG_I1
-        [ -n "$AWG_I2" ] && uci set network.${INTERFACE_NAME}.awg_i2=$AWG_I2
-        [ -n "$AWG_I3" ] && uci set network.${INTERFACE_NAME}.awg_i3=$AWG_I3
-        [ -n "$AWG_I4" ] && uci set network.${INTERFACE_NAME}.awg_i4=$AWG_I4
-        [ -n "$AWG_I5" ] && uci set network.${INTERFACE_NAME}.awg_i5=$AWG_I5
+        [ -n "$AWG_S3" ] && uci set network.${INTERFACE_NAME}.awg_s3="$AWG_S3"
+        [ -n "$AWG_S4" ] && uci set network.${INTERFACE_NAME}.awg_s4="$AWG_S4"
+        [ -n "$AWG_I1" ] && uci set network.${INTERFACE_NAME}.awg_i1="$AWG_I1"
+        [ -n "$AWG_I2" ] && uci set network.${INTERFACE_NAME}.awg_i2="$AWG_I2"
+        [ -n "$AWG_I3" ] && uci set network.${INTERFACE_NAME}.awg_i3="$AWG_I3"
+        [ -n "$AWG_I4" ] && uci set network.${INTERFACE_NAME}.awg_i4="$AWG_I4"
+        [ -n "$AWG_I5" ] && uci set network.${INTERFACE_NAME}.awg_i5="$AWG_I5"
     fi
 
     if ! uci show network | grep -q ${CONFIG_NAME}; then
@@ -227,14 +227,14 @@ configure_amneziawg_interface() {
 
     uci set network.@${CONFIG_NAME}[0]=$CONFIG_NAME
     uci set network.@${CONFIG_NAME}[0].name="${INTERFACE_NAME}_client"
-    uci set network.@${CONFIG_NAME}[0].public_key=$AWG_PUBLIC_KEY_INT
-    uci set network.@${CONFIG_NAME}[0].preshared_key=$AWG_PRESHARED_KEY_INT
+    uci set network.@${CONFIG_NAME}[0].public_key="$AWG_PUBLIC_KEY_INT"
+    uci set network.@${CONFIG_NAME}[0].preshared_key="$AWG_PRESHARED_KEY_INT"
     uci set network.@${CONFIG_NAME}[0].route_allowed_ips='1'
     uci set network.@${CONFIG_NAME}[0].persistent_keepalive='25'
-    uci set network.@${CONFIG_NAME}[0].endpoint_host=$AWG_ENDPOINT_INT
+    uci set network.@${CONFIG_NAME}[0].endpoint_host="$AWG_ENDPOINT_INT"
     uci set network.@${CONFIG_NAME}[0].allowed_ips='0.0.0.0/0'
     uci add_list network.@${CONFIG_NAME}[0].allowed_ips='::/0'
-    uci set network.@${CONFIG_NAME}[0].endpoint_port=$AWG_ENDPOINT_PORT_INT
+    uci set network.@${CONFIG_NAME}[0].endpoint_port="$AWG_ENDPOINT_PORT_INT"
     uci commit network
 
     if ! uci show firewall | grep -q "@zone.*name='${ZONE_NAME}'"; then
